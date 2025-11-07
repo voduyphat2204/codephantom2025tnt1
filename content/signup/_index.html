@@ -1,0 +1,101 @@
+---
+title: "Đăng Ký Tài Khoản"
+---
+
+<div class="form-container">
+    <h1>Tạo Tài Khoản Mới</h1>
+    <p>Chào mừng bạn đến với PHUKIENMAYTINH! Hãy đăng ký để có những trải nghiệm tốt nhất.</p>
+
+    <form class="signup-form">
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">Xác nhận mật khẩu</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Nhập lại mật khẩu" required>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <button type="submit" class="btn-primary">Đăng Ký</button>
+        
+        <p class="form-footer">
+            Đã có tài khoản? <a href="/login/">Đăng nhập ngay!</a>
+        </p>
+    </form>
+</div>
+
+<script type="module">
+    // 1. Tải "Người Bảo Vệ" (auth) từ file init
+    import { auth } from "/js/firebase-init.js";
+    
+    // 2. Tải hàm "Tạo tài khoản"
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+    // 3. Lấy các phần tử form
+    const signupForm = document.querySelector(".signup-form");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirm-password");
+    const emailInput = document.getElementById("email");
+    const errorMessage = document.getElementById("error-message");
+    const submitButton = signupForm.querySelector("button[type='submit']");
+
+    // 4. Lắng nghe sự kiện bấm nút "Đăng Ký"
+    signupForm.addEventListener("submit", async function(event) {
+        event.preventDefault(); 
+        
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang xử lý...";
+        errorMessage.textContent = ""; 
+
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        // d. Kiểm tra mật khẩu
+        if (password !== confirmPassword) {
+            errorMessage.textContent = "Mật khẩu xác nhận không khớp! Vui lòng thử lại.";
+            submitButton.disabled = false;
+            submitButton.textContent = "Đăng Ký";
+            return;
+        }
+
+        // e. GỌI FIREBASE ĐỂ TẠO TÀI KHOẢN
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            
+            // THÔNG BÁO THÀNH CÔNG
+            alert("Tạo tài khoản thành công! Chào mừng bạn!");
+            window.location.href = "/"; // Chuyển về trang chủ
+
+        } catch (error) {
+            // f. THÔNG BÁO THẤT BẠI (Dịch lỗi)
+            
+            let customErrorMessage = "Đã có lỗi không xác định. Vui lòng thử lại."; 
+
+            switch (error.code) {
+                case "auth/email-already-in-use":
+                    customErrorMessage = "Email đã được dùng để đăng kí một tài khoản khác.";
+                    break;
+                case "auth/weak-password":
+                    customErrorMessage = "Mật khẩu yếu! Vui lòng chọn mật khẩu có ít nhất 6 ký tự.";
+                    break;
+                case "auth/invalid-email":
+                    customErrorMessage = "Địa chỉ email không hợp lệ. Vui lòng kiểm tra lại.";
+                    break;
+            }
+            
+            errorMessage.textContent = customErrorMessage;
+            submitButton.disabled = false;
+            submitButton.textContent = "Đăng Ký";
+        }
+    });
+</script>

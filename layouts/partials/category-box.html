@@ -1,0 +1,21 @@
+<a href="{{ .Permalink }}" class="category-box">
+    
+    <div class="category-box-image">
+        {{ if .Params.image }}
+            <img src="{{ .Params.image }}" alt="{{ .Title }}">
+        {{ else }}
+            <div class="image-placeholder"></div>
+        {{ end }}
+    </div>
+    
+<div class="category-box-content">
+    <div> 
+        <h3 class="category-box-title">{{ .Title }}</h3>
+        <p class="category-box-description">{{ .Params.description }}</p>
+    </div>
+
+    <div class="category-box-cta">
+        <span>Xem sản phẩm <i class="fas fa-arrow-right"></i></span>
+    </div>
+</div>
+</a>

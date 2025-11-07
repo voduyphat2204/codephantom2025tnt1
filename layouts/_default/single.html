@@ -1,0 +1,150 @@
+{{ define "main" }}
+<div class="product-detail-page">
+  <div class="product-detail-header">
+    <button onclick="history.back()" class="btn-secondary">← Quay về</button>
+    <h1 class="product-title">{{ .Title }}</h1>
+  </div>
+
+  <div class="product-detail-body">
+    <div class="product-image">
+      <img src="{{ .Params.image }}" alt="{{ .Title }}">
+    </div>
+
+    <div class="product-info">
+      <p class="product-description">{{ .Params.description }}</p>
+
+      <!-- 👇 Gọi specs theo loại sản phẩm -->
+      {{ if eq .Params.type "cpu" }}
+        {{ partial "specs-cpu.html" . }}
+      {{ else if eq .Params.type "mainboard" }}
+        {{ partial "specs-mainboard.html" . }}
+      {{ else if eq .Params.type "ram" }}
+        {{ partial "specs-ram.html" . }}
+      {{ else if eq .Params.type "gpu" }}
+        {{ partial "specs-gpu.html" . }}
+      {{ else if eq .Params.type "manhinh" }}
+        {{ partial "specs-manhinh.html" . }}
+      {{ else if eq .Params.type "loavatainghe" }}
+        {{ partial "specs-loavatainghe.html" . }}
+      {{ else if eq .Params.type "banphim" }}
+        {{ partial "specs-banphim.html" . }}
+      {{ else if eq .Params.type "conchuot" }}
+        {{ partial "specs-conchuot.html" . }}
+      {{ else if eq .Params.type "tannhiet" }}
+        {{ partial "specs-tannhiet.html" . }}
+      {{ else if eq .Params.type "vocase" }}
+        {{ partial "specs-vocase.html" . }}
+      {{ else if eq .Params.type "ocung" }}
+        {{ partial "specs-ocung.html" . }}
+      {{ else if eq .Params.type "ocungngoai" }}
+        {{ partial "specs-ocungngoai.html" . }}
+      {{ else if eq .Params.type "micro" }}
+        {{ partial "specs-micro.html" . }}
+      {{ else }}
+        <p>Thông số kỹ thuật chưa được cập nhật cho loại sản phẩm này.</p>
+      {{ end }}
+
+      <!-- 💰 Giá và nút mua -->
+      <div class="product-price-highlight">
+        {{ if .Params.price }}
+          {{ replace (printf "%d" .Params.price) "," "." }} đ
+        {{ else }}
+          Vui lòng liên hệ
+        {{ end }}
+      </div>
+
+      <button
+        class="snipcart-add-item btn-primary"
+        data-item-id="{{ .Params.snipcart_id }}"
+        data-item-name="{{ .Title }}"
+        data-item-price="{{ .Params.price }}"
+        data-item-url="{{ .Permalink }}"
+        data-item-image="{{ .Params.image }}">
+        🛒 Thêm vào Giỏ Hàng
+      </button>
+
+      <!-- ⭐ Form đánh giá sản phẩm -->
+      <div class="review-form">
+        <h3>Gửi đánh giá của bạn</h3>
+        <select id="rating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★</option>
+          <option value="3">★★★</option>
+          <option value="2">★★</option>
+          <option value="1">★</option>
+        </select>
+        <textarea id="comment" placeholder="Viết bình luận..."></textarea>
+        <input type="text" id="username" placeholder="Tên của bạn">
+        <input type="email" id="email" placeholder="Email của bạn">
+        <button onclick="submitReview()">Gửi đánh giá</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔥 Firebase + xử lý đánh giá -->
+<script type="module">
+  import { db } from "/js/firebase-init.js";
+  import {
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+  async function submitReview() {
+    const rating = parseInt(document.getElementById("rating").value);
+    const comment = document.getElementById("comment").value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const productId = "{{ .Params.snipcart_id }}";
+
+    if (!comment || !username || !email) {
+      alert("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "reviews"), {
+        productId,
+        rating,
+        comment,
+        username,
+        email,
+        timestamp: new Date()
+      });
+      alert("Đánh giá đã được gửi!");
+      document.getElementById("comment").value = "";
+    } catch (e) {
+      console.error("Lỗi khi gửi đánh giá:", e);
+    }
+  }
+
+  async function loadReviews() {
+    const productId = "{{ .Params.snipcart_id }}";
+    const q = query(
+      collection(db, "reviews"),
+      where("productId", "==", productId),
+      orderBy("timestamp", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    const container = document.createElement("div");
+    container.className = "review-list";
+    document.querySelector(".review-form").after(container);
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const item = document.createElement("div");
+      item.innerHTML = `
+        <strong>${data.username}</strong> - ${"★".repeat(data.rating)}
+        <p>${data.comment}</p>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  loadReviews();
+</script>
+{{ end }}

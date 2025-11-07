@@ -1,0 +1,27 @@
+# Kết quả build và cache của Hugo
+/public/
+/resources/
+.hugo_build.lock
+/hugo_cache/
+
+# Tệp do trình soạn thảo code và IDE tạo ra
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Tệp rác của Hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Tệp log và tệp tạm
+*.log
+*~
+*.tmp
+
+# Tệp môi trường (Quan trọng)
+.env
+.env.*
+
+# Thư mục Node.js
+/node_modules/

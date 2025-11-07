@@ -1,0 +1,47 @@
+<div class="category-box product-box">
+  <a href="{{ .Permalink }}" class="product-box-link">
+
+    <div class="category-box-image">
+      {{ if .Params.image }}
+        <img src="{{ .Params.image }}" alt="{{ .Title }}">
+      {{ else }}
+        <div class="category-box-image-placeholder"></div>
+      {{ end }}
+    </div>
+
+    <div class="category-box-content">
+      <h3 class="category-box-title">{{ .Title }}</h3>
+
+      {{ if .Params.description }}
+        <p class="category-box-description">{{ .Params.description }}</p>
+      {{ end }}
+
+      <div class="product-box-meta">
+        {{ if .Params.price }}
+          {{ $price := .Params.price }}
+          <span class="product-price">{{ printf "%d đ" $price }}</span>
+        {{ else }}
+          <span class="price-missing">Vui lòng liên hệ</span>
+        {{ end }}
+
+        {{ if .Params.warranty }}
+          <span class="product-warranty"><i class="fas fa-shield-alt"></i> {{ .Params.warranty }}</span>
+        {{ end }}
+      </div>
+
+      <div class="category-box-cta">
+        <button
+          class="snipcart-add-item btn-primary"
+          data-item-id="{{ .Params.snipcart_id }}"
+          data-item-name="{{ .Title }}"
+          data-item-price="{{ .Params.price }}"
+          data-item-url="{{ .Permalink }}"
+          data-item-image="{{ .Params.image }}"
+          role="button">
+          <i class="fas fa-shopping-cart"></i> Thêm vào Giỏ Hàng
+        </button>
+      </div>
+
+    </div>
+  </a>
+</div>

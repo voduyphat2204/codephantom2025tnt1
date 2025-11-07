@@ -1,0 +1,88 @@
+---
+title: "Đăng Nhập"
+---
+
+<div class="form-container">
+    <h1>Đăng Nhập</h1>
+    <p>Rất vui được gặp lại bạn! Vui lòng nhập thông tin.</p>
+
+    <form class="login-form">
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" placeholder="Nhập mật khẩu của bạn" required>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <button type="submit" class="btn-primary">Đăng Nhập</button>
+        
+        <p class="form-footer">
+            Chưa có tài khoản? <a href="/signup/">Đăng ký ngay!</a>
+        </p>
+    </form>
+</div>
+
+<script type="module">
+    // 1. Tải "Người Bảo Vệ" (auth) từ file init
+    import { auth } from "/js/firebase-init.js";
+    
+    // 2. Tải hàm "Đăng Nhập"
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+    // 3. Lấy các phần tử form
+    const loginForm = document.querySelector(".login-form");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const errorMessage = document.getElementById("error-message");
+    const submitButton = loginForm.querySelector("button[type='submit']");
+
+    // 4. Lắng nghe sự kiện bấm nút "Đăng Nhập"
+    loginForm.addEventListener("submit", async function(event) {
+        event.preventDefault(); 
+        
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang xử lý...";
+        errorMessage.textContent = ""; 
+
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        // d. GỌI FIREBASE ĐỂ ĐĂNG NHẬP
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            
+            // THÔNG BÁO THÀNH CÔNG
+            alert("Đăng nhập thành công! Chào mừng trở lại!");
+            window.location.href = "/"; // Chuyển về trang chủ
+
+        } catch (error) {
+            // e. THÔNG BÁO THẤT BẠI (Dịch lỗi)
+            
+            let customErrorMessage = "Lỗi không xác định. Vui lòng thử lại.";
+
+            switch (error.code) {
+                case "auth/invalid-credential":
+                case "auth/wrong-password":
+                case "auth/user-not-found":
+                    customErrorMessage = "Email hoặc Mật khẩu không chính xác. Vui lòng thử lại.";
+                    break;
+                case "auth/invalid-email":
+                    customErrorMessage = "Địa chỉ email không hợp lệ.";
+                    break;
+                case "auth/too-many-requests":
+                    customErrorMessage = "Bạn đã thử đăng nhập sai quá nhiều lần. Vui lòng thử lại sau.";
+                    break;
+            }
+            
+            errorMessage.textContent = customErrorMessage;
+            submitButton.disabled = false;
+            submitButton.textContent = "Đăng Nhập";
+        }
+    });
+</script>

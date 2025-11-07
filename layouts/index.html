@@ -1,0 +1,25 @@
+{{ define "main" }}
+<div class="hero-section">
+    <div class="hero-container">
+        
+        <div class="hero-image">
+            <img src="/images/phu-kien-may-tinh.jpg" alt="Phụ kiện máy tính">
+        </div>
+
+        <div class="hero-content">
+            <h1>{{ .Params.headline }}</h1>
+            <p>{{ .Params.description }}</p>
+            
+            <ul class="features-list">
+                {{ range .Params.features }}
+                <li>
+                    <strong>{{ .icon }}</strong>
+                    <span>{{ .text }}</span>
+                </li>
+                {{ end }}
+            </ul>
+        </div>
+
+    </div>
+</div>
+{{ end }}
